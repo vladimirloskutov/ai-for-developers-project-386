@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Новый пуш в ветку отменяет незавершённый прогон по той же ветке
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  lint:
+    name: Линтер и форматирование
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+
+  typecheck:
+    name: Типы
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  test:
+    name: Тесты
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  build:
+    name: Сборка
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+  smoke:
+    name: Smoke — приложение поднимается и отвечает
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      - name: Backend отвечает на /health
+        env:
+          PORT: '3000'
+          LOG_LEVEL: info
+          DATABASE_URL: ./data/ci.db
+        run: |
+          npm run start --workspace backend > /tmp/backend.log 2>&1 &
+          trap 'pkill -f "node dist/server.js" || true' EXIT
+          curl --fail --silent \
+            --retry 30 --retry-connrefused --retry-delay 1 --retry-max-time 60 \
+            http://localhost:3000/health > /tmp/health.json || { cat /tmp/backend.log; exit 1; }
+          grep --quiet '"status":"ok"' /tmp/health.json || { cat /tmp/backend.log; exit 1; }
+          cat /tmp/health.json
+
+      - name: Frontend отдаёт собранное приложение
+        run: |
+          npm run preview --workspace frontend -- --port 4173 > /tmp/frontend.log 2>&1 &
+          trap 'pkill -f "vite preview" || true' EXIT
+          curl --fail --silent \
+            --retry 30 --retry-connrefused --retry-delay 1 --retry-max-time 60 \
+            http://localhost:4173/ | grep --quiet 'id="root"' || { cat /tmp/frontend.log; exit 1; }
+          echo "frontend отвечает: ok"
+
+  commitlint:
+    name: Формат коммитов в PR
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Проверяю коммиты по Conventional Commits
+        run: |
+          npx commitlint \
+            --from "${{ github.event.pull_request.base.sha }}" \
+            --to "${{ github.event.pull_request.head.sha }}" \
+            --verbose
