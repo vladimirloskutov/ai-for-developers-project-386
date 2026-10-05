@@ -121,11 +121,12 @@ merge в `main` читает историю коммитов, собирает C
 увеличивает минорную, `fix` — патч, `BREAKING CHANGE` — мажорную. После мержа
 этого PR появляется GitHub Release с тегом `backend-v0.1.0`.
 
-Чтобы процесс заработал, в настройках репозитория
-(Settings → Actions → General → Workflow permissions) нужно разрешить
-GitHub Actions создавать pull requests, а в разделе
-Settings → Actions → General → Automations добавить разрешение `Release`
-с доступом на запись содержимого.
+Единственная настройка на стороне GitHub — в разделе
+Settings → Actions → General → Workflow permissions включить _Allow GitHub
+Actions to create and approve pull requests_, иначе release-please не сможет
+открыть свой PR. Права на запись выдаёт сам workflow через блок
+`permissions` (`contents`, `issues`, `pull-requests`), токен дополнительно
+не нужен.
 
 ## CI
 
@@ -133,6 +134,11 @@ Settings → Actions → General → Automations добавить разреше
 типы, тесты, сборку и smoke-тест — приложения собираются, поднимаются как
 процессы и должны ответить на `/health` (backend) и отдать собранный HTML
 (frontend). Отдельно в PR проверяются заголовки коммитов.
+
+Один нюанс: PR, созданный release-please, не запускает CI — события от
+`GITHUB_TOKEN` не порождают новых прогонов workflow. На релизном PR
+проверки просто не появятся; если понадобится, чтобы запускались, потребуется
+PAT в секретах.
 
 ---
 

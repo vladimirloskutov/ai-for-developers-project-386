@@ -8,6 +8,9 @@ on:
 
 permissions:
   contents: write
+  # release-please вешает лейблы (autorelease: pending) на свой PR — для этого
+  # нужен именно issues: write, а не pull-requests: write
+  issues: write
   pull-requests: write
 
 # Релизы не отменяем: каждый прогон должен успеть обновить PR с релизом
