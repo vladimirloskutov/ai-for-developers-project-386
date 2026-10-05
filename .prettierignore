@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+package-lock.json
+backend/data/
+backend/drizzle/
+CHANGELOG.md
+
+# Компоненты генерируются shadcn CLI — форматируем их генератором, а не Prettier
+frontend/src/components/ui/**
