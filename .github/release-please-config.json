@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "backend": {
+      "release-type": "node",
+      "component": "backend",
+      "package-name": "backend",
+      "initial-version": "0.1.0",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "frontend": {
+      "release-type": "node",
+      "component": "frontend",
+      "package-name": "frontend",
+      "initial-version": "0.1.0",
+      "changelog-path": "CHANGELOG.md"
+    }
+  },
+  "changelog-sections": [
+    { "type": "feat", "section": "Новое" },
+    { "type": "fix", "section": "Исправления" },
+    { "type": "perf", "section": "Производительность" },
+    { "type": "refactor", "section": "Рефакторинг" },
+    { "type": "docs", "section": "Документация" },
+    { "type": "test", "section": "Тесты" },
+    { "type": "build", "section": "Сборка" },
+    { "type": "ci", "section": "CI" },
+    { "type": "chore", "section": "Прочее" },
+    { "type": "revert", "section": "Откаты" },
+    { "type": "style", "section": "Стиль", "hidden": true }
+  ]
+}

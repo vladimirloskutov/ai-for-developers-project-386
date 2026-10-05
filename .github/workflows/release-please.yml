@@ -1,0 +1,26 @@
+name: Release
+
+# Запускается на каждый push в main: release-please читает историю коммитов,
+# собирает changelog и держит открытым PR с новой версией.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Релизы не отменяем: каждый прогон должен успеть обновить PR с релизом
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v5
+        with:
+          config-file: .github/release-please-config.json
+          manifest-file: .github/.release-please-manifest.json
