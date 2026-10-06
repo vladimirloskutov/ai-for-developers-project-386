@@ -157,8 +157,10 @@ Conventional Commits, проверяются локально (`commit-msg` hook
 
 - Отдельные релизные треки: `backend-vX.Y.Z` и `frontend-vX.Y.Z`.
 - Конфиг: `.github/release-please-config.json`, текущие версии —
-  `.github/.release-please-manifest.json` (начинаются с `0.0.0`,
-  первый релиз будет `0.1.0`).
+  `.github/.release-please-manifest.json`. Сейчас `0.1.0` у обоих,
+  `backend-v0.1.0` и `frontend-v0.1.0` уже выпущены.
+- Release-PR один на оба пакета, заголовок `chore: release main`, он
+  обновляет оба CHANGELOG, оба package.json и манифест.
 - Версию руками не править: её двигает release-please в release-PR.
 - Права выдаёт блок `permissions` в `.github/workflows/release-please.yml`.
   Там нужен именно `issues: write` — release-please вешает лейблы

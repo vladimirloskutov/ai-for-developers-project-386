@@ -117,9 +117,11 @@ ci: run smoke check on pull requests
 
 Релизы автоматические: workflow `.github/workflows/release-please.yml` после
 merge в `main` читает историю коммитов, собирает CHANGELOG и открывает PR
-`chore(main): release backend 0.1.0`. Версии назначаются по SemVer: `feat`
-увеличивает минорную, `fix` — патч, `BREAKING CHANGE` — мажорную. После мержа
-этого PR появляется GitHub Release с тегом `backend-v0.1.0`.
+`chore: release main` (один на оба пакета). Версии назначаются по SemVer:
+`feat` увеличивает минорную, `fix` — патч, `BREAKING CHANGE` — мажорную.
+После мержа этого PR появляются теги `backend-vX.Y.Z` и `frontend-vX.Y.Z`.
+Пример: первый релиз дал `0.1.0` с CHANGELOG в `backend/CHANGELOG.md`
+и `frontend/CHANGELOG.md`.
 
 Единственная настройка на стороне GitHub — в разделе
 Settings → Actions → General → Workflow permissions включить _Allow GitHub
